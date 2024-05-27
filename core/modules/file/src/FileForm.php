@@ -39,16 +39,14 @@ class FileForm extends ContentEntityForm {
    *
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    *   The entity repository.
-   * @param \Drupal\Core\TempStore\PrivateTempStoreFactory $temp_store_factory
-   *   The factory for the temp store object.
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
    *   The entity type bundle service.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
-   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
-   *   The date formatter service.
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
+   *   The date formatter service.
    */
   public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info, TimeInterface $time, AccountInterface $current_user, DateFormatterInterface $date_formatter) {
     parent::__construct($entity_repository, $entity_type_bundle_info, $time);
@@ -105,8 +103,8 @@ class FileForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
-    $file = $this->entity;
+    $entity = parent::validateForm($form, $form_state);
+    $file = $entity;
     $new_file = file_save_upload('new_file');
     $new_file = reset($new_file);
     if ($file->getFileName() !== $new_file->getFileName()) {
@@ -116,6 +114,7 @@ class FileForm extends ContentEntityForm {
     else {
       $form_state->set('new_file', $new_file);
     }
+    return $entity;
   }
 
   /**
@@ -128,7 +127,6 @@ class FileForm extends ContentEntityForm {
     \Drupal::service('file_system')->copy($new_file->getFileUri(), $file->getFileUri(), FileExists::Replace);
     $file->setMimeType($new_file->getMimeType());
     $file->setSize($new_file->getSize());
-    $file->save();
 
     $new_file->delete();
 
@@ -138,6 +136,7 @@ class FileForm extends ContentEntityForm {
         image_path_flush($file->getFileUri());
       }
     }
+    return parent::save($form, $form_state);
   }
 
 }
