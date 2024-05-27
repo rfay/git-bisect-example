@@ -12,7 +12,6 @@ use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\File\FileExists;
 
-
 /**
  * Form handler for the file edit forms.
  *
@@ -120,19 +119,18 @@ class FileForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    $file = $this->entity;
     $new_file = $form_state->get('new_file');
 
-    \Drupal::service('file_system')->copy($new_file->getFileUri(), $file->getFileUri(), FileExists::Replace);
-    $file->setMimeType($new_file->getMimeType());
-    $file->setSize($new_file->getSize());
+    \Drupal::service('file_system')->copy($new_file->getFileUri(), $this->entity->getFileUri(), FileExists::Replace);
+    $this->entity->setMimeType($new_file->getMimeType());
+    $this->entity->setSize($new_file->getSize());
 
     $new_file->delete();
 
     if (\Drupal::moduleHandler()->moduleExists('image')) {
-      $image = \Drupal::service('image.factory')->get($file->getFileUri());
+      $image = \Drupal::service('image.factory')->get($this->entity->getFileUri());
       if ($image->isValid()) {
-        image_path_flush($file->getFileUri());
+        image_path_flush($this->entity->getFileUri());
       }
     }
     return parent::save($form, $form_state);
