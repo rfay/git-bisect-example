@@ -34,6 +34,7 @@ use Drupal\user\EntityOwnerTrait;
  *     "views_data" = "Drupal\file\FileViewsData",
  *     "list_builder" = "Drupal\Core\Entity\EntityListBuilder",
  *     "form" = {
+ *       "edit" = "Drupal\file\FileForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
  *     },
  *     "route_provider" = {
@@ -49,6 +50,7 @@ use Drupal\user\EntityOwnerTrait;
  *     "owner" = "uid",
  *   },
  *   links = {
+ *     "edit-form" = "/file/{file}/edit",
  *     "delete-form" = "/file/{file}/delete",
  *   }
  * )

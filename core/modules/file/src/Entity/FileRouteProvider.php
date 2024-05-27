@@ -28,6 +28,16 @@ class FileRouteProvider implements EntityRouteProviderInterface {
       ->setOption('_admin_route', TRUE);
     $route_collection->add('entity.file.delete_form', $route);
 
+    $route = (new Route('/file/{file}/edit'))
+      ->addDefaults([
+        '_entity_form' => 'file.edit',
+        '_title' => 'Edit',
+      ])
+      ->setRequirement('file', '\d+')
+      ->setRequirement('_entity_access', 'file.update')
+      ->setOption('_admin_route', TRUE);
+    $route_collection->add('entity.file.edit_form', $route);
+
     return $route_collection;
   }
 

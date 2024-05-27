@@ -255,4 +255,40 @@ class FileManagedFileElementTest extends FileFieldTestBase {
     $this->assertSession()->pageTextContains('The file ids are ' . $file->id());
   }
 
+  /**
+   * Test file replacement.
+   */
+  public function testFileReplace(): void {
+
+    $file_system = \Drupal::service('file_system');
+    $test_file_uri = 'private://test-file.txt';
+    $original_content = $this->randomString(32);
+    file_put_contents($test_file_uri, $original_content);
+    $file_field_name = 'files[nested_file][]';
+
+    $this->drupalGet('file/test/1/0/1');
+    $edit = [$file_field_name => $file_system->realpath($test_file_uri)];
+    $this->submitForm($edit, 'Upload');
+    $this->submitForm([], 'Save');
+    $fid = $this->getLastFileId();
+
+    // Replace file with a different name.
+    $this->drupalGet("file/$fid/edit");
+    $new_file_content = $this->randomString(32);
+    file_put_contents('public://new-file.txt', $new_file_content);
+    $edit = ['files[new_file]' => $file_system->realpath('public://new-file.txt')];
+    $this->submitForm($edit, 'Save');
+    $this->assertSession()->pageTextContains('The uploaded file new-file.txt name does not match the existing file test-file.txt');
+    $this->assertNotEquals($new_file_content, file_get_contents($file_system->realpath($test_file_uri)));
+
+    // Replace with new content.
+    $result = file_put_contents($test_file_uri, $new_file_content);
+    $this->assertIsNumeric($result);
+    $this->drupalGet("file/$fid/edit");
+    $edit = ['files[new_file]' => $file_system->realpath($test_file_uri)];
+    $this->submitForm($edit, 'Save');
+    $this->assertEquals($new_file_content, file_get_contents($file_system->realpath($test_file_uri)));
+    $this->assertNotEquals($original_content, file_get_contents($file_system->realpath($test_file_uri)));
+  }
+
 }
