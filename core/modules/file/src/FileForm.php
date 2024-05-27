@@ -104,12 +104,11 @@ class FileForm extends ContentEntityForm {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $entity = parent::validateForm($form, $form_state);
-    $file = $entity;
     $new_file = file_save_upload('new_file');
     $new_file = reset($new_file);
-    if ($file->getFileName() !== $new_file->getFileName()) {
+    if ($entity->getFileName() !== $new_file->getFileName()) {
       $form_state->setErrorByName('new_file', $this->t('The uploaded file @newname name does not match the existing file @oldname',
-      ['@oldname' => $file->getFileName(), '@newname' => $new_file->getFileName()]));
+      ['@oldname' => $entity->getFileName(), '@newname' => $new_file->getFileName()]));
     }
     else {
       $form_state->set('new_file', $new_file);
