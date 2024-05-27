@@ -185,6 +185,11 @@ DateTime Range
 - Jonathan Hedstrom 'jhedstrom' https://www.drupal.org/u/jhedstrom
 - Matthew Donadio 'mpdonadio' https://www.drupal.org/u/mpdonadio
 
+Default Content
+- Alex Pott 'alexpott' https://www.drupal.org/u/alexpott
+- Adam Globus-Hoenich 'phenaproxima' https://www.drupal.org/u/phenaproxima
+- Jim Birch 'thejimbirch' https://www.drupal.org/u/thejimbirch
+
 Dynamic Page Cache
 - Fabian Franz 'Fabianx' https://www.drupal.org/u/fabianx
 - Wim Leers 'Wim Leers' https://www.drupal.org/u/wim-leers
@@ -331,6 +336,11 @@ Plugin
 Queue
 - James Gilliland 'neclimdul' https://www.drupal.org/u/neclimdul
 
+Recipes
+- Alex Pott 'alexpott' https://www.drupal.org/u/alexpott
+- Adam Globus-Hoenich 'phenaproxima' https://www.drupal.org/u/phenaproxima
+- Jim Birch 'thejimbirch' https://www.drupal.org/u/thejimbirch
+
 Render API
 - Alex Bronstein 'effulgentsia' https://www.drupal.org/u/effulgentsia
 - Moshe Weitzman 'moshe weitzman' https://www.drupal.org/u/moshe-weitzman
@@ -385,6 +395,10 @@ Theme API
 - Fabian Franz 'Fabianx' https://www.drupal.org/u/fabianx
 - Joël Pittet 'joelpittet' https://www.drupal.org/u/joelpittet
 - Lauri Eskola 'lauriii' https://www.drupal.org/u/lauriii
+
+  Single-Directory Components
+  - Mateu Aguiló Bosch 'e0ipso' https://www.drupal.org/u/e0ipso
+  - Pierre Dureau 'pdureau' https://www.drupal.org/u/pdureau
 
 Token
 - ?

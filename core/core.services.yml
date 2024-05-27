@@ -17,6 +17,7 @@ parameters:
     cookie_samesite: Lax
     sid_length: 48
     sid_bits_per_character: 6
+    name_suffix: ''
   twig.config:
     debug: false
     auto_reload: null
@@ -864,7 +865,7 @@ services:
   Drupal\Core\Queue\QueueWorkerManagerInterface: '@plugin.manager.queue_worker'
   plugin.cache_clearer:
     class: Drupal\Core\Plugin\CachedDiscoveryClearer
-    lazy: true
+    autowire: true
   Drupal\Core\Plugin\CachedDiscoveryClearerInterface: '@plugin.cache_clearer'
   paramconverter.menu_link:
     class: Drupal\Core\ParamConverter\MenuLinkPluginConverter
