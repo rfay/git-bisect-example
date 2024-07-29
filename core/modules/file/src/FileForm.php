@@ -71,7 +71,6 @@ class FileForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-
     /** @var \Drupal\file\FileInterface $file */
     $file = $this->entity;
 
@@ -102,15 +101,23 @@ class FileForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    /** @var \Drupal\file\FileInterface $entity */
     $entity = parent::validateForm($form, $form_state);
     $new_file = file_save_upload('new_file');
-    $new_file = reset($new_file);
-    if ($entity->getFileName() !== $new_file->getFileName()) {
-      $form_state->setErrorByName('new_file', $this->t('The uploaded file @newname name does not match the existing file @oldname',
-      ['@oldname' => $entity->getFileName(), '@newname' => $new_file->getFileName()]));
+    if (is_array($new_file) && count($new_file) > 0) {
+      $new_file = reset($new_file);
+      if ($entity->getFileName() !== $new_file->getFileName()) {
+        $form_state->setErrorByName('new_file', $this->t('The uploaded file @newname name does not match the existing file @oldname', [
+          '@oldname' => $entity->getFileName(),
+          '@newname' => $new_file->getFileName(),
+        ]));
+      }
+      else {
+        $form_state->set('new_file', $new_file);
+      }
     }
     else {
-      $form_state->set('new_file', $new_file);
+      $form_state->set('new_file', NULL);
     }
     return $entity;
   }
@@ -119,6 +126,8 @@ class FileForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
+    assert($this->entity instanceof FileInterface, '\Drupal\file\FileInterface instance expected.');
+
     $new_file = $form_state->get('new_file');
 
     \Drupal::service('file_system')->copy($new_file->getFileUri(), $this->entity->getFileUri(), FileExists::Replace);
