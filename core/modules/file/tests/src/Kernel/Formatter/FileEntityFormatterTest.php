@@ -88,7 +88,9 @@ class FileEntityFormatterTest extends KernelTestBase {
 
     $build = $entity_display->buildMultiple($this->files)[0]['filename'][0];
     $this->assertEquals('file.png', $build['#title']);
-    $this->assertEquals($this->fileUrlGenerator->generate('public://file.png'), $build['#url']);
+    $url = $this->fileUrlGenerator->generate('public://file.png');
+    $url->setOptions(['query' => ['changed' => $this->files[0]->getCreatedTime()]]);
+    $this->assertEquals($url, $build['#url']);
   }
 
   /**
@@ -111,7 +113,9 @@ class FileEntityFormatterTest extends KernelTestBase {
     $entity_display->setComponent('uri', ['type' => 'file_uri', 'settings' => ['file_download_path' => TRUE, 'link_to_file' => TRUE]]);
     $build = $entity_display->buildMultiple($this->files)[0]['uri'][0];
     $this->assertEquals($this->fileUrlGenerator->generateString('public://file.png'), $build['#title']);
-    $this->assertEquals($this->fileUrlGenerator->generate('public://file.png'), $build['#url']);
+    $url = $this->fileUrlGenerator->generate('public://file.png');
+    $url->setOptions(['query' => ['changed' => $this->files[0]->getCreatedTime()]]);
+    $this->assertEquals($url, $build['#url']);
   }
 
   /**
