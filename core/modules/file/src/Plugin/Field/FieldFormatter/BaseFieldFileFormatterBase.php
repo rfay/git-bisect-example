@@ -97,6 +97,7 @@ abstract class BaseFieldFileFormatterBase extends FormatterBase {
     // Add support to link to the entity itself.
     if ($this->getSetting('link_to_file')) {
       $url = $this->fileUrlGenerator->generate($items->getEntity()->getFileUri());
+      $url->setOptions(['query' => ['changed' => $items->getEntity()->getChangedTime()]]);
     }
 
     foreach ($items as $delta => $item) {
