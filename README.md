@@ -1,8 +1,8 @@
 <img alt="Drupal Logo" src="https://www.drupal.org/files/Wordmark_blue_RGB.png" height="60px">
 
-This version of Drupal 11 is broken.
+This version of Drupal 11.x (11.3.x) is broken.
 
-Although Drupal 11.3.x is supposed to work with PHP 8.3+ (and even lower), it's not working with PHP8.3.23 We can see that if we `ddev start` and `ddev launch /core/install.php` we'll get an error.
+Although Drupal 11.3.x is supposed to work with PHP 8.1+, it's not working here with PHP 8.3.23 We can see that if we `ddev launch /core/install.php` we'll get an error.
 
 Use `git bisect` to find out when PHP 8.3.23 stopped working.
 
@@ -55,12 +55,12 @@ exit $rv
 
 ```bash
 git bisect reset
-git bisect start 11.x 11.2.0 # git bisect bad good
+git bisect start 11.x 11.2.0 # git bisect <bad> <good>
 git bisect run ~/tmp/check-installable.sh
 ```
 
 **Caveats**:
 
-* At each point in the bisect, git has checked out fresh code. You may need to take action to make that code completely usable. So the script does a `ddev composer install` for example, so the `vendor` dir and related files are up-to-date.
-* In some situations you might have to load a fresh database at each point, or take whatever action is required to set the site to the initial state you're interested in. We don't have to do that in this example.
-* On macOS and Windows, Mutagen is on by default, and we are making massive changes with each git checkout that `git bisect` does. It can take mutagen a moment to sync all those changes. As a result, the script adds a `ddev mutagen sync` to ensure that the sync is complete before we execute our test.
+* At each point in the bisect, git has checked out fresh code. You may need to take action to make that code completely usable. As a demonstration this script does a `ddev composer install` for example, so the `vendor` dir and related files are up-to-date related to the code being executed.
+* In some situations you might have to load a fresh database at each point, or a `drush si`, or take whatever action is required to set the site to the initial state you're interested in. We don't have to do that in this example because `install.php` is not dependent on a lot of things.
+* On macOS and Windows, Mutagen is enabled in DDEV by default, and we are making massive changes with each git checkout that `git bisect` does. It can take mutagen a moment to sync all those changes. As a result, the script adds a `ddev mutagen sync` to ensure that the sync is complete before we execute our test.
