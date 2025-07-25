@@ -10,8 +10,10 @@ Use `git bisect` to find out when PHP 8.3.23 stopped working.
 2. `ddev config --php-version=8.3` (Gets current default DDEV PHP, 8.3.23 as of 7/2024)
 3. `ddev composer install`
 4. `ddev launch` will fail with `Your PHP installation is too old`
+5. `ddev config --php-version=8.4` and `ddev restart` and try again. It works.
+6. Set it back with `ddev config --php-version=8.3` and `ddev restart`.
 
-You know that Drupal 11 installed fine with PHP 8.3.23 in version 11.2.0, but it doesn't with the current version here.
+You know that Drupal 11.2.0 installed fine with any PHP 8.3, but it doesn't with the current version here.
 
 Use `git bisect` to find out what went wrong.
 
@@ -28,7 +30,7 @@ Continue with `git bisect good` or `git bisect bad` using `ddev launch` to check
 You can go a step farther and automate the check. For example,
 
 ```
-curl -s https://git-bisect-example.ddev.site/core/install.php | grep "<title>Choose language" >/dev/null
+curl -s https://git-bisect-example.ddev.site/core/install.php | grep -q "<title>Choose language" >/dev/null
 ``````
 
 will return bash "true" or 0 when it's working, so can be used instead of manually hitting `ddev launch` and verifying it.
