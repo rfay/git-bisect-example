@@ -1,75 +1,66 @@
 <img alt="Drupal Logo" src="https://www.drupal.org/files/Wordmark_blue_RGB.png" height="60px">
 
-Drupal is an open source content management platform supporting a variety of
-websites ranging from personal weblogs to large community-driven websites. For
-more information, visit the Drupal website, [Drupal.org][Drupal.org], and join
-the [Drupal community][Drupal community].
+This version of Drupal 11.x (11.3.x) is broken.
 
-## Contributing
+Although Drupal 11.3.x is supposed to work with PHP 8.1+, it's not working here with PHP 8.3.23 We can see that if we `ddev launch /core/install.php` we'll get an error.
 
-Drupal is developed on [Drupal.org][Drupal.org], the home of the international
-Drupal community since 2001!
+Use `git bisect` to find out when PHP 8.3.23 stopped working.
 
-[Drupal.org][Drupal.org] hosts Drupal's [GitLab repository][GitLab repository],
-its [issue queue][issue queue], and its [documentation][documentation]. Before
-you start working on code, be sure to search the [issue queue][issue queue] and
-create an issue if your aren't able to find an existing issue.
+1. Check out the repo, `git clone https://github.com/rfay/git-bisect-example`
+2. `ddev config --php-version=8.3` (Gets current default DDEV PHP, 8.3.23 as of 7/2024)
+3. `ddev composer install`
+4. `ddev launch` will fail with `Your PHP installation is too old`
+5. `ddev config --php-version=8.4` and `ddev restart` and try again. It works.
+6. Set it back with `ddev config --php-version=8.3` and `ddev restart`.
 
-Every issue on Drupal.org automatically creates a new community-accessible fork
-that you can contribute to. Learn more about the code contribution process on
-the [Issue forks & merge requests page][issue forks].
+You know that Drupal 11.2.0 installed fine with any PHP 8.3, but it doesn't with the current version here.
 
-## Usage
+Use `git bisect` to find out what went wrong.
 
-For a brief introduction, see [USAGE.txt](/core/USAGE.txt). You can also find
-guides, API references, and more by visiting Drupal's [documentation
-page][documentation].
+```bash
+git bisect start
+git bisect bad # We know it's bad right here
+git checkout 11.2.0
+ddev launch  # Should work
+git bisect good  # so we mark it good
+```
 
-You can quickly extend Drupal's core feature set by installing any of its
-[thousands of free and open source modules][modules]. With Drupal and its
-module ecosystem, you can often build most or all of what your project needs
-before writing a single line of code.
+Continue with `git bisect good` or `git bisect bad` using `ddev launch` to check whether the install will work, until it finds the bad commit.
 
-## Changelog
+You can go a step farther and automate the check. For example,
 
-Drupal keeps detailed [change records][changelog]. You can search Drupal's
-changes for a record of every notable breaking change and new feature since
-2011.
+```
+curl -s https://git-bisect-example.ddev.site/core/install.php | grep -q "<title>Choose language" >/dev/null
+``````
 
-## Security
+will return bash "true" or 0 when it's working, so can be used instead of manually hitting `ddev launch` and verifying it.
 
-For a list of security announcements, see the [Security advisories
-page][Security advisories] (available as [an RSS feed][security RSS]). This
-page also describes how to subscribe to these announcements via email.
+So with this script in `~/tmp/check-installable.sh` and the script set to executable, you can find the answer much more quickly. (The script can't be in the repository because we're checking over various checkouts of various revisions of the repository.)
 
-For information about the Drupal security process, or to find out how to report
-a potential security issue to the Drupal security team, see the [Security team
-page][security team].
+```bash
+#!/bin/bash
 
-## Need a helping hand?
+sleep 1
+ddev mutagen sync >/dev/null 2>&1 # make sure the git checkout has propagated if mutagen enabled
+echo "Result of ddev mutagen sync: $?"
+sleep 1
+ddev composer install --no-interaction >/dev/null 2>&1
+echo "Result of composer install: $?"
+curl -sfL https://git-bisect-example.ddev.site/core/install.php | grep "<title>Choose language" >/dev/null
+rv=$?
+#sleep 1
+echo "Result of curl-grep is $rv"
+exit $rv
+```
 
-Visit the [Support page][support] or browse [over a thousand Drupal
-providers][service providers] offering design, strategy, development, and
-hosting services.
+```bash
+git bisect reset
+git bisect start 11.x 11.2.0 # git bisect <bad> <good>
+git bisect run ~/tmp/check-installable.sh
+```
 
-## Legal matters
+**Caveats**:
 
-Know your rights when using Drupal by reading Drupal core's
-[license](/core/LICENSE.txt).
-
-Learn about the [Drupal trademark and logo policy here][trademark].
-
-[Drupal.org]: https://www.drupal.org
-[Drupal community]: https://www.drupal.org/community
-[GitLab repository]: https://git.drupalcode.org/project/drupal
-[issue queue]: https://www.drupal.org/project/issues/drupal
-[issue forks]: https://www.drupal.org/drupalorg/docs/gitlab-integration/issue-forks-merge-requests
-[documentation]: https://www.drupal.org/documentation
-[changelog]: https://www.drupal.org/list-changes/drupal
-[modules]: https://www.drupal.org/project/project_module
-[security advisories]: https://www.drupal.org/security
-[security RSS]: https://www.drupal.org/security/rss.xml
-[security team]: https://www.drupal.org/drupal-security-team
-[service providers]: https://www.drupal.org/drupal-services
-[support]: https://www.drupal.org/support
-[trademark]: https://www.drupal.com/trademark
+* At each point in the bisect, git has checked out fresh code. You may need to take action to make that code completely usable. As a demonstration this script does a `ddev composer install` for example, so the `vendor` dir and related files are up-to-date related to the code being executed.
+* In some situations you might have to load a fresh database at each point, or a `drush si`, or take whatever action is required to set the site to the initial state you're interested in. We don't have to do that in this example because `install.php` is not dependent on a lot of things.
+* On macOS and Windows, Mutagen is enabled in DDEV by default, and we are making massive changes with each git checkout that `git bisect` does. It can take mutagen a moment to sync all those changes. As a result, the script adds a `ddev mutagen sync` to ensure that the sync is complete before we execute our test.
