@@ -2,12 +2,12 @@
 
 This version of Drupal 11.x (11.3.x) is broken.
 
-Although Drupal 11.3.x is supposed to work with PHP 8.1+, it's not working here with PHP 8.3.23 We can see that if we `ddev launch /core/install.php` we'll get an error.
+Although Drupal 11.3.x is supposed to work with PHP 8.1+, it's not working here with PHP 8.3.25 We can see that if we `ddev launch /core/install.php` we'll get an error.
 
-Use `git bisect` to find out when PHP 8.3.23 stopped working.
+Use `git bisect` to find out when PHP 8.3.25 stopped working.
 
 1. Check out the repo, `git clone https://github.com/rfay/git-bisect-example`
-2. `ddev config --php-version=8.3` (Gets current default DDEV PHP, 8.3.23 as of 7/2024)
+2. `ddev config --php-version=8.3` (Gets current default DDEV PHP, 8.3.25 as of 10/2025)
 3. `ddev composer install`
 4. `ddev launch` will fail with `Your PHP installation is too old`
 5. `ddev config --php-version=8.4` and `ddev restart` and try again. It works.
